@@ -1,0 +1,77 @@
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# .NET Core 8
+bin/
+obj/
+
+# Visual Studio
+.vscode/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+Generated_Code/
+
+# Logs
+*.log
+
+# NPM Packages
+node_modules/
+
+# Environment variables
+.env
+
+# Local History
+.localhistory/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code
+.vscode/
+
+# Others
+*.DS_Store
+*.pyc
+*.pyo
+*.pyd
+*.pidb
+*.sln.ide
+*.sln.ide.*
+*.sln.ide.*.user
+*.sln.ide.*.userosscache
+*.sln.ide.*.suo
+*.sln.ide.*.sln.docstates
+*.sln.ide.*.sln.docstates.*
+*.sln.ide.*.sln.docstates.*.user
+*.sln.ide.*.sln.docstates.*.userosscache
+*.sln.ide.*.sln.docstates.*.suo
+*.sln.ide.*.sln.docstates.*.sln.docstates
+*.sln.ide.*.sln.docstates.*.sln.docstates.*
