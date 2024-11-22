@@ -18,6 +18,7 @@ namespace ScalableServiceApiGateway.Controllers
         }
 
         [HttpPost("email")]
+        [ServiceFilter(typeof(AuthorizationFilter))]
         public async Task<ActionResult<NotificationResponse>> CreateNotification([FromBody] CreateNotificationRequest request)
         {
             try

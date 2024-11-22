@@ -1,10 +1,11 @@
-﻿namespace ScalableServiceApiGateway.Models.Responses
+﻿using ScalableServiceApiGateway.Models;
+
+public class AdvancedSearchResponse
 {
-    public class AdvancedSearchResponse
-    {
-        public List<BookResponse> Books { get; set; }
-        public int TotalPages { get; set; }
-        public int CurrentPage { get; set; }
-        public int TotalBooks { get; set; }
-    }
+    public List<GetBook> Books { get; set; }
+    public int TotalPages { get; set; }
+    public int CurrentPage { get; set; }
+    public int TotalBooks { get; set; }
 }
+
+

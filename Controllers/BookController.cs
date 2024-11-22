@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ScalableServiceApiGateway.Models;
 using ScalableServiceApiGateway.Models.Requests;
 using ScalableServiceApiGateway.Models.Responses;
 using System.Text.Json;
@@ -7,6 +8,7 @@ namespace ScalableServiceApiGateway.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ServiceFilter(typeof(AuthorizationFilter))]
     public class BookController : ControllerBase
     {
         private readonly HttpClient _httpClient;
@@ -21,12 +23,26 @@ namespace ScalableServiceApiGateway.Controllers
         [HttpPost]
         public async Task<ActionResult<BookResponse>> CreateBook([FromBody] CreateBookRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/books", request);
+            var userId = HttpContext.Items["UserId"] as string;
+
+            var requestBody = new CreateBookMicroserviceRequest
+            {
+                Author = request.Author,
+                Condition = request.Condition,
+                Description = request.Description,
+                Genre = request.Genre,
+                IsAvailable = request.IsAvailable,
+                Location = request.Location,
+                Title = request.Title,
+                UserId = userId
+            };
+
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/books", requestBody);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var bookResponse = JsonSerializer.Deserialize<BookResponse>(content, new JsonSerializerOptions
+                var bookResponse = JsonSerializer.Deserialize<PostBook>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -84,12 +100,21 @@ namespace ScalableServiceApiGateway.Controllers
         [HttpPut("{bookId}")]
         public async Task<ActionResult<BookResponse>> UpdateBook(string bookId, [FromBody] UpdateBookRequest request)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/books/{bookId}", request);
+            var userId = HttpContext.Items["UserId"] as string;
+
+            var requestBody = new UpdateBookMicroServiceRequest
+            {
+                Condition = request.Condition,
+                IsAvailable = request.IsAvailable,
+                UserId = userId
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/books/{bookId}", requestBody);
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var bookResponse = JsonSerializer.Deserialize<BookResponse>(content, new JsonSerializerOptions
+                var bookResponse = JsonSerializer.Deserialize<PostBook>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -110,7 +135,7 @@ namespace ScalableServiceApiGateway.Controllers
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var bookResponse = JsonSerializer.Deserialize<Book>(content, new JsonSerializerOptions
+                var bookResponse = JsonSerializer.Deserialize<GetBook>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

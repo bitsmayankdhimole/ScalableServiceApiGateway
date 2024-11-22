@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ScalableServiceApiGateway.Services
 {
+
     public class NotificationService : INotificationService
     {
         private readonly HttpClient _httpClient;
@@ -20,18 +21,25 @@ namespace ScalableServiceApiGateway.Services
 
         public async Task<NotificationResponse> SendNotification(CreateNotificationRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/v1/notification/email", request);
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            return new NotificationResponse()
+            try
             {
-                CreatedAt = System.DateTime.Now,
-                UpdatedAt = System.DateTime.Now,
-                Message = content,
-                Recipient = request.Recipient,
-                Status = "Success",
-                Type = request.Type
-            };
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/v1/notification/email", request);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                return new NotificationResponse()
+                {
+                    CreatedAt = System.DateTime.Now,
+                    UpdatedAt = System.DateTime.Now,
+                    Message = content,
+                    Recipient = request.Recipient,
+                    Status = "Success",
+                    Type = request.Type
+                };
+            }
+            catch (Exception ex)
+            {
+                return new NotificationResponse();
+            }
             //return JsonSerializer.Deserialize<NotificationResponse>(content, new JsonSerializerOptions
             //{
             //    PropertyNameCaseInsensitive = true

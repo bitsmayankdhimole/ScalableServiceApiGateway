@@ -10,4 +10,9 @@
         public string Description { get; set; }
         public bool IsAvailable { get; set; }
     }
+
+    public class CreateBookMicroserviceRequest : CreateBookRequest
+    {
+        public string UserId { get; set; }
+    }
 }

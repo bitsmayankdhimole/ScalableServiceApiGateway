@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using ScalableServiceApiGateway.Models.Responses;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 public class AuthorizationFilter : IAsyncActionFilter
@@ -29,9 +31,23 @@ public class AuthorizationFilter : IAsyncActionFilter
             return;
         }
 
-        var userId = await response.Content.ReadAsStringAsync();
-        context.HttpContext.Items["UserId"] = userId;
+        var userJson = await response.Content.ReadAsStringAsync();
+        var userResponse = JsonSerializer.Deserialize<UserResponse>(userJson, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+        context.HttpContext.Items["UserId"] = userResponse?.UserId?.Id;
 
         await next();
     }
+}
+
+public class UserResponse
+{
+    public UserId UserId { get; set; }
+}
+
+public class UserId
+{
+    public string Id { get; set; }
 }

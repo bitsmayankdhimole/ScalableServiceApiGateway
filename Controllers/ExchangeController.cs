@@ -22,6 +22,29 @@ namespace ScalableServiceApiGateway.Controllers
             _notificationService = notificationService;
         }
 
+
+        [HttpGet("lookup/request-types")]
+        public async Task<ActionResult<List<Lookup>>> GetRequestTypes()
+        {
+            var userId = HttpContext.Items["UserId"] as string;
+
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/lookup/request-types");
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var deliveryMethods = JsonSerializer.Deserialize<List<Lookup>>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                return Ok(deliveryMethods);
+            }
+            catch (JsonException ex)
+            {
+                return BadRequest("Error deserializing response.");
+            }
+        }
+
         [HttpGet("lookup/delivery-methods")]
         public async Task<ActionResult<List<Lookup>>> GetDeliveryMethods()
         {
@@ -88,7 +111,7 @@ namespace ScalableServiceApiGateway.Controllers
             }
         }
 
-        [HttpPost("exchange-requests")]
+        [HttpPost("exchange-request")]
         public async Task<ActionResult<ExchangeRequest>> CreateExchangeRequest([FromBody] CreateExchangeRequest request)
         {
             var userId = HttpContext.Items["UserId"] as string;
@@ -121,12 +144,12 @@ namespace ScalableServiceApiGateway.Controllers
             }
         }
 
-        [HttpGet("exchange-requests/{requestId}")]
+        [HttpGet("exchange-request/{requestId}")]
         public async Task<ActionResult<ExchangeRequest>> GetExchangeRequest(int requestId)
         {
             var userId = HttpContext.Items["UserId"] as string;
 
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ExchangeRequests/{requestId}");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ExchangeRequests/exchange-request/{requestId}");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             try
@@ -148,7 +171,7 @@ namespace ScalableServiceApiGateway.Controllers
         {
             var userIdFromToken = HttpContext.Items["UserId"] as string;
 
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ExchangeRequests?userId={userIdFromToken}");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ExchangeRequests/exchange-requests/{userIdFromToken}");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             try
@@ -165,7 +188,7 @@ namespace ScalableServiceApiGateway.Controllers
             }
         }
 
-        [HttpPut("exchange-requests/{requestId}")]
+        [HttpPut("exchange-request/{requestId}")]
         public async Task<IActionResult> UpdateExchangeRequest(int requestId, [FromBody] UpdateExchangeRequest request)
         {
             var userId = HttpContext.Items["UserId"] as string;
