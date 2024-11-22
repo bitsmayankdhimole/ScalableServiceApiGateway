@@ -68,7 +68,7 @@ namespace ScalableServiceApiGateway.Controllers
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var books = JsonSerializer.Deserialize<List<BookResponse>>(content, new JsonSerializerOptions
+                var books = JsonSerializer.Deserialize<BookResponse>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -110,7 +110,7 @@ namespace ScalableServiceApiGateway.Controllers
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var bookResponse = JsonSerializer.Deserialize<BookResponse>(content, new JsonSerializerOptions
+                var bookResponse = JsonSerializer.Deserialize<Book>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

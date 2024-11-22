@@ -19,11 +19,11 @@ namespace ScalableServiceApiGateway.Controllers
             _baseUrl = configuration["MicroserviceUrls:UserBaseUrl"];
         }
 
-        [HttpGet("fetchUser")]
-        public async Task<ActionResult<UserResponse>> FetchUser([FromHeader(Name = "auth-token")] string authToken, [FromBody] FetchUserRequest request)
+        [HttpPost("fetchUser")]
+        public async Task<ActionResult<UserResponse>> FetchUser([FromHeader(Name = "auth-token")] string authToken)
         {
             _httpClient.DefaultRequestHeaders.Add("auth-token", authToken);
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/user/fetchUser", request);
+            var response = await _httpClient.GetAsync($"{_baseUrl}/user/fetchUser");
             response.EnsureSuccessStatusCode();
             var content = await response.Content.ReadAsStringAsync();
             try
@@ -36,7 +36,7 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
+                
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -44,11 +44,13 @@ namespace ScalableServiceApiGateway.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponse>> Register([FromBody] Models.Requests.RegisterRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/auth/register", request);
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
+            
             try
             {
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/auth/register", request);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+
                 var authResponse = JsonSerializer.Deserialize<AuthResponse>(content, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -57,8 +59,7 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
-                return BadRequest("Error deserializing response.");
+                return BadRequest(ex.Message);
             }
         }
 
@@ -78,7 +79,7 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
+                
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -99,9 +100,31 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
+                
+                return BadRequest("Error deserializing response.");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult<AuthResponse>> ResetPassword([FromBody] Models.Requests.ResetPasswordRequest request)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/auth/ResetPassword", request);
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var authResponse = JsonSerializer.Deserialize<AuthResponse>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                return Ok(authResponse);
+            }
+            catch (JsonException ex)
+            {
+                
                 return BadRequest("Error deserializing response.");
             }
         }
     }
 }
+

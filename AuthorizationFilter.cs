@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 public class AuthorizationFilter : IAsyncActionFilter
 {
     private readonly HttpClient _httpClient;
-    private readonly string verifyToken = "https://localhost:5001/api/identity/verify-token/";
+    private readonly string verifyToken = "http://localhost:4000/user/fetchUser/";
     public AuthorizationFilter(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -20,8 +20,9 @@ public class AuthorizationFilter : IAsyncActionFilter
             context.Result = new UnauthorizedResult();
             return;
         }
+        _httpClient.DefaultRequestHeaders.Add("auth-token", token);
+        var response = await _httpClient.GetAsync($"{verifyToken}");
 
-        var response = await _httpClient.GetAsync($"{verifyToken}{token}");
         if (!response.IsSuccessStatusCode)
         {
             context.Result = new UnauthorizedResult();

@@ -4,7 +4,7 @@
     {
         public bool Success { get; set; }
         public string AuthToken { get; set; }
-        public Notification Json { get; set; }
+        public string Json { get; set; }
     }
 
     public class Notification

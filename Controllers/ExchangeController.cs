@@ -1,22 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScalableServiceApiGateway.Models.Requests;
 using ScalableServiceApiGateway.Models.Responses;
+using ScalableServiceApiGateway.Services;
 using System.Text.Json;
 
 namespace ScalableServiceApiGateway.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[ServiceFilter(typeof(AuthorizationFilter))]
+    [ServiceFilter(typeof(AuthorizationFilter))]
     public class ExchangeController : ControllerBase
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
+        private readonly INotificationService _notificationService;
 
-        public ExchangeController(HttpClient httpClient, IConfiguration configuration)
+        public ExchangeController(HttpClient httpClient, IConfiguration configuration, INotificationService notificationService)
         {
             _httpClient = httpClient;
             _baseUrl = configuration["MicroserviceUrls:ExchangeBaseUrl"];
+            _notificationService = notificationService;
         }
 
         [HttpGet("lookup/delivery-methods")]
@@ -37,7 +40,6 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -60,7 +62,6 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -83,7 +84,6 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -92,6 +92,7 @@ namespace ScalableServiceApiGateway.Controllers
         public async Task<ActionResult<ExchangeRequest>> CreateExchangeRequest([FromBody] CreateExchangeRequest request)
         {
             var userId = HttpContext.Items["UserId"] as string;
+            var userEmail = HttpContext.Items["UserEmail"] as string;
 
             var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/ExchangeRequests", request);
             response.EnsureSuccessStatusCode();
@@ -102,11 +103,20 @@ namespace ScalableServiceApiGateway.Controllers
                 {
                     PropertyNameCaseInsensitive = true
                 });
+
+                // Send notification
+                var notificationRequest = new CreateNotificationRequest
+                {
+                    Type = "email",
+                    Recipient = userEmail,
+                    Message = "Exchange request created successfully"
+                };
+                await _notificationService.SendNotification(notificationRequest);
+
                 return Ok(exchangeRequest);
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -129,7 +139,6 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -152,7 +161,6 @@ namespace ScalableServiceApiGateway.Controllers
             }
             catch (JsonException ex)
             {
-                // Log the exception (ex) as needed
                 return BadRequest("Error deserializing response.");
             }
         }
@@ -161,9 +169,19 @@ namespace ScalableServiceApiGateway.Controllers
         public async Task<IActionResult> UpdateExchangeRequest(int requestId, [FromBody] UpdateExchangeRequest request)
         {
             var userId = HttpContext.Items["UserId"] as string;
+            var userEmail = HttpContext.Items["UserEmail"] as string;
 
             var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/ExchangeRequests/{requestId}", request);
             response.EnsureSuccessStatusCode();
+
+            // Send notification
+            var notificationRequest = new CreateNotificationRequest
+            {
+                Type = "email",
+                Recipient = userEmail,
+                Message = "Exchange request updated successfully"
+            };
+            await _notificationService.SendNotification(notificationRequest);
             return NoContent();
         }
     }
